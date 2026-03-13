@@ -1,0 +1,195 @@
+1. Users Table
+
+Purpose
+
+The Users table stores customer accounts.
+It allows people to register, log in, place orders, and track purchases.
+Column
+Reason
+user_id
+Primary key. Gives every user a unique identifier so the system can reference them in other tables such as orders.
+username
+Used for login and identification inside the platform. Easier for users to remember than an ID number.
+email
+Contact method and also used for account recovery and login verification. Often required to be unique.
+password_hash
+Stores the encrypted version of the user password. Storing plain passwords would create a security risk.
+first_name
+Allows the system to address users personally and store profile information.
+last_name
+Helps identify the user and is often used for delivery or billing details.
+created_at
+Records when the account was created. Useful for account management, analytics, and auditing.
+account_status
+Shows if the account is active, suspended, or disabled. This helps administrators manage misuse or inactive accounts.
+2. Producers Table
+
+Purpose
+
+The Producers table stores accounts for businesses or sellers that provide products.
+Separating producers from users helps manage sellers independently from customers.
+  Column
+Reason
+producer_id
+Primary key. Gives each producer a unique identifier. Other tables reference this ID to link products to the correct producer.
+producer_name
+Stores the business or brand name shown to customers.
+email
+Contact method for the producer and also used for login access.
+password_hash
+Stores the encrypted password for the producer account. Protects login credentials.
+phone
+Allows direct communication with the producer for support or order issues.
+address
+Stores the producer’s business location for shipping, records, or verification.
+created_at
+Records when the producer account was created. Useful for tracking platform growth and account activity.
+3. Products Table
+
+Purpose
+
+The Products table stores the items that producers sell.
+Each product links to a specific producer so the system knows who owns and supplies the item.
+  Column
+Reason
+product_id
+Primary key. Unique identifier for each product.
+producer_id
+Foreign key linking the product to the producer who sells it. Without this link the system cannot identify the seller.
+product_name
+The name displayed to customers when browsing products.
+description
+Stores details about the product such as materials, features, or specifications. Helps customers understand what they are buying.
+price
+Stores the cost of the product. Required to calculate order totals.
+stock_quantity
+Tracks how many units are available. Prevents selling products that are out of stock.
+created_at
+Records when the product was added to the system. Useful for product management and reporting.
+4. Orders Table
+
+Purpose
+
+The Orders table records purchases made by users.
+It connects customers to the products they buy and tracks the status of the transaction.
+  Column
+Reason
+order_id
+Primary key. Unique identifier for each order so it can be tracked and managed.
+user_id
+Foreign key linking the order to the user who placed it. This allows the system to show order history.
+product_id
+Foreign key linking the order to the product being purchased. This shows what item was bought.
+quantity
+Records how many units of the product were ordered.
+total_price
+Stores the total cost of the order. Useful for reporting and payment records.
+order_status
+Shows the current state of the order such as pending, shipped, or delivered. Helps with order tracking.
+order_date
+Records when the order was placed. Used for tracking, analytics, and customer order history.
+1.
+  Field
+Type
+Notes
+user_id
+INT (PK, AUTO_INCREMENT)
+Unique user ID
+username
+VARCHAR(50)
+Login name
+email
+VARCHAR(100)
+Unique email
+password_hash
+VARCHAR(255)
+Encrypted password
+first_name
+VARCHAR(50)
+User first name
+last_name
+VARCHAR(50)
+User surname
+created_at
+DATETIME
+Account creation date
+account_status
+VARCHAR(20)
+active / suspended
+2.
+  Field
+Type
+Notes
+producer_id
+INT (PK, AUTO_INCREMENT)
+Unique producer ID
+producer_name
+VARCHAR(100)
+Business name
+email
+VARCHAR(100)
+Contact email
+password_hash
+VARCHAR(255)
+Login password
+phone
+VARCHAR(20)
+Contact number
+address
+VARCHAR(255)
+Business location
+created_at
+DATETIME
+Account creation date
+3. 
+  Field
+Type
+Notes
+product_id
+INT (PK, AUTO_INCREMENT)
+Unique product ID
+producer_id
+INT (FK)
+Links to Producers
+product_name
+VARCHAR(100)
+Name of item
+description
+TEXT
+Product details
+price
+DECIMAL(10,2)
+Price
+stock_quantity
+INT
+Units available
+created_at
+DATETIME
+Date added
+4.
+  Field
+Type
+Notes
+order_id
+INT (PK, AUTO_INCREMENT)
+Unique order ID
+user_id
+INT (FK)
+Customer placing order
+product_id
+INT (FK)
+Product purchased
+quantity
+INT
+Amount bought
+total_price
+DECIMAL(10,2)
+Calculated total
+order_status
+VARCHAR(20)
+pending / shipped / delivered
+order_date
+DATETIME
+When order placed
+
+  

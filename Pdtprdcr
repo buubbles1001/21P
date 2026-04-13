@@ -1,0 +1,91 @@
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.product-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.product-card h3 {
+    margin-bottom: 10px;
+}
+
+<?php
+require_once 'includes/dbconn.php';
+
+if (!isset($_GET['id'])) {
+    die("Producer not found");
+}
+
+$id = $_GET['id'];
+
+/* Get producer */
+$stmt = $pdo->prepare("SELECT * FROM producers WHERE producer_id = ?");
+$stmt->execute([$id]);
+$producer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$producer) {
+    die("Producer not found");
+}
+
+/* Get products for this producer */
+$stmt = $pdo->prepare("SELECT * FROM products WHERE producer_id = ?");
+$stmt->execute([$id]);
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><?php echo htmlspecialchars($producer['producer_name']); ?></title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="profile">
+
+    <h1><?php echo htmlspecialchars($producer['producer_name']); ?></h1>
+
+    <p><strong>Email:</strong> <?php echo htmlspecialchars($producer['email']); ?></p>
+
+    <hr>
+
+    <h2>Products</h2>
+
+    <?php if (count($products) > 0): ?>
+
+        <div class="products-grid">
+
+            <?php foreach ($products as $product): ?>
+                <div class="product-card">
+
+                    <h3><?php echo htmlspecialchars($product['product_name']); ?></h3>
+
+                    <p><?php echo htmlspecialchars($product['description']); ?></p>
+
+                    <p><strong>£<?php echo number_format($product['price'], 2); ?></strong></p>
+
+                    <p>Stock: <?php echo $product['stock_quantity']; ?></p>
+
+                </div>
+            <?php endforeach; ?>
+
+        </div>
+
+    <?php else: ?>
+        <p>No products available.</p>
+    <?php endif; ?>
+
+    <a href="producers.php" class="btn">Back</a>
+
+</section>
+
+</body>
+</html>

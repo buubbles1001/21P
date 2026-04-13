@@ -1,0 +1,101 @@
+<?php
+require_once 'includes/dbconn.php';
+
+$stmt = $pdo->query("SELECT * FROM producers");
+$producers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Producers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="producers">
+    <h1>Meet Our Producers</h1>
+
+    <?php foreach ($producers as $index => $producer): ?>
+        
+        <div class="producer <?php echo $index % 2 !== 0 ? 'reverse' : ''; ?>">
+
+            <div class="producer-text">
+                <h2><?php echo htmlspecialchars($producer['producer_name']); ?></h2>
+
+                <p>
+                    <?php echo htmlspecialchars($producer['description'] ?? 'No description available.'); ?>
+                </p>
+
+                <a href="producer_profile.php?id=<?php echo $producer['producer_id']; ?>" class="btn">
+                    View Profile
+                </a>
+            </div>
+
+            <div class="producer-img">
+                <img src="images/<?php echo htmlspecialchars($producer['image'] ?? 'default.jpg'); ?>" 
+                     alt="<?php echo htmlspecialchars($producer['producer_name']); ?>">
+            </div>
+
+        </div>
+
+    <?php endforeach; ?>
+
+</section>
+
+</body>
+</html>
+
+<?php
+require_once 'includes/dbconn.php';
+
+if (!isset($_GET['id'])) {
+    die("Producer not found");
+}
+
+$id = $_GET['id'];
+
+$stmt = $pdo->prepare("SELECT * FROM producers WHERE producer_id = ?");
+$stmt->execute([$id]);
+$producer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$producer) {
+    die("Producer not found");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><?php echo htmlspecialchars($producer['producer_name']); ?></title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<section class="profile">
+
+    <h1><?php echo htmlspecialchars($producer['producer_name']); ?></h1>
+
+    <img src="images/<?php echo htmlspecialchars($producer['image'] ?? 'default.jpg'); ?>" 
+         alt="<?php echo htmlspecialchars($producer['producer_name']); ?>">
+
+    <p><?php echo htmlspecialchars($producer['description'] ?? 'No description available.'); ?></p>
+
+    <p>
+        <strong>Contact:</strong> 
+        <?php echo htmlspecialchars($producer['email']); ?>
+    </p>
+
+    <p>
+        <strong>Location:</strong> 
+        <?php echo htmlspecialchars($producer['location'] ?? 'Not provided'); ?>
+    </p>
+
+    <a href="producers.php" class="btn">Back</a>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<?php
+session_start();
+require_once 'db_connect.php';
+
+// Redirect if not logged in as producer
+if (!isset($_SESSION['producer_id'])) {
+    header("Location: producer_login.php");
+    exit();
+}
+
+$producer_id = $_SESSION['producer_id'];
+
+try {
+    $stmt = $pdo->prepare("SELECT producer_name, email FROM producers WHERE producer_id = ? LIMIT 1");
+    $stmt->execute([$producer_id]);
+    $producer = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Producer Dashboard</title>
+</head>
+<body>
+
+<h1>Welcome, <?php echo htmlspecialchars($producer['producer_name']); ?> 👋</h1>
+
+<p>Email: <?php echo htmlspecialchars($producer['email']); ?></p>
+
+<a href="logout.php">Logout</a>
+
+</body>
+</html>

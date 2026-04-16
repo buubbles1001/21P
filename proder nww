@@ -1,0 +1,85 @@
+<?php
+require_once 'db_connect.php';
+
+// Fetch all producers
+$stmt = $pdo->query('SELECT producer_id, name, email, description, image_url FROM producers');
+$producers = $stmt->fetchAll();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Producers</title>
+    <style>
+        .producer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        .producer-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .producer-row.reverse {
+            flex-direction: row-reverse;
+        }
+        .producer-img {
+            width: 220px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #eee;
+        }
+        .producer-info {
+            flex: 1;
+        }
+        .producer-info h2 {
+            margin: 0 0 10px 0;
+        }
+        .producer-info p {
+            margin: 0 0 10px 0;
+        }
+        .producer-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 18px;
+            background: #007bff;
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .producer-link:hover {
+            background: #0056b3;
+        }
+        @media (max-width: 700px) {
+            .producer-row, .producer-row.reverse {
+                flex-direction: column !important;
+                align-items: flex-start;
+            }
+            .producer-img {
+                width: 100%;
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">All Producers</h1>
+    <div class="producer-list">
+        <?php foreach ($producers as $i => $producer): ?>
+            <div class="producer-row<?= $i % 2 ? ' reverse' : '' ?>">
+                <img class="producer-img" src="<?= htmlspecialchars($producer['image_url'] ?: 'placeholder.png') ?>" alt="<?= htmlspecialchars($producer['name']) ?>">
+                <div class="producer-info">
+                    <h2><?= htmlspecialchars($producer['name']) ?></h2>
+                    <p><?= htmlspecialchars($producer['description']) ?></p>
+                    <a class="producer-link" href="producer.php?id=<?= $producer['producer_id'] ?>">View Producer Page</a>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</body>
+</html>

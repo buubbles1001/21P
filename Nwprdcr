@@ -1,0 +1,125 @@
+<?php
+require_once 'includes/dbconn.php';
+
+$sql = "SELECT * FROM producers";
+$result = $conn->query($sql);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Producers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 90%;
+            margin: auto;
+        }
+
+        .producer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 50px 0;
+            gap: 30px;
+        }
+
+        .producer:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .producer img {
+            width: 45%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .producer-text {
+            width: 50%;
+        }
+
+        .producer-text h2 {
+            margin-bottom: 10px;
+        }
+
+        .producer-text p {
+            margin-bottom: 15px;
+        }
+
+        .producer-text a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .producer-text a:hover {
+            background-color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .producer {
+                flex-direction: column !important;
+            }
+
+            .producer img,
+            .producer-text {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Our Producers</h1>
+
+    <?php
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+    ?>
+        <div class="producer">
+            <img src="<?php echo $row['image_path']; ?>" alt="<?php echo $row['producer_name']; ?>">
+
+            <div class="producer-text">
+                <h2><?php echo $row['producer_name']; ?></h2>
+                <p><?php echo $row['description']; ?></p>
+
+                <a href="producer.php?id=<?php echo $row['producer_id']; ?>">
+                    View Producer
+                </a>
+            </div>
+        </div>
+    <?php
+        }
+    } else {
+        echo "<p>No producers found.</p>";
+    }
+    ?>
+</div>
+
+</body>
+</html>
+
+<?php
+require_once 'includes/dbconn.php';
+
+$id = $_GET['id'];
+
+$sql = "SELECT * FROM producers WHERE producer_id = $id";
+$result = $conn->query($sql);
+$producer = $result->fetch_assoc();
+?>
+
+<h1><?php echo $producer['producer_name']; ?></h1>
+<img src="<?php echo $producer['image_path']; ?>" width="400">
+<p><?php echo $producer['description']; ?></p>

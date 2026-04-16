@@ -1,0 +1,74 @@
+<?php
+session_start();
+require_once 'db_connect.php';
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['pending_order'])) {
+    header('Location: account.php');
+    exit;
+}
+$user_id = $_SESSION['user_id'];
+$cart = $_SESSION['pending_order'];
+
+// Fetch products for display
+$ids = implode(',', array_map('intval', array_keys($cart)));
+$stmt = $pdo->query("SELECT product_id, name, price FROM products WHERE product_id IN ($ids)");
+$products = $stmt->fetchAll();
+$total = 0;
+foreach ($products as $product) {
+    $qty = $cart[$product['product_id']];
+    $total += $qty * $product['price'];
+}
+
+// Handle delivery option selection
+if (isset($_POST['delivery_type'])) {
+    $delivery_type = $_POST['delivery_type'];
+    $delivery_address = $delivery_type === 'home' ? trim($_POST['delivery_address']) : null;
+    $order_status = 'Pending';
+    $order_date = date('Y-m-d H:i:s');
+
+    // Insert order(s) and delivery
+    foreach ($products as $product) {
+        $qty = $cart[$product['product_id']];
+        $total_price = $qty * $product['price'];
+        // Insert into orders
+        $stmt = $pdo->prepare("INSERT INTO orders (user_id, product_id, quantity, total_price, order_status, order_date) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $product['product_id'], $qty, $total_price, $order_status, $order_date]);
+        $order_id = $pdo->lastInsertId();
+        // Insert into delivery
+        $stmt2 = $pdo->prepare("INSERT INTO delivery (order_id, delivery_type, delivery_address, delivery_status, tracking_number) VALUES (?, ?, ?, ?, ?)");
+        $stmt2->execute([$order_id, $delivery_type, $delivery_address, 'Pending', null]);
+    }
+    unset($_SESSION['cart']);
+    unset($_SESSION['pending_order']);
+    header('Location: account.php?order=success');
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Choose Delivery Option</title>
+    <script>
+    function toggleAddress() {
+        var home = document.getElementById('home');
+        var addressField = document.getElementById('address-field');
+        addressField.style.display = home.checked ? 'block' : 'none';
+    }
+    </script>
+</head>
+<body>
+    <h1>Choose Delivery Option</h1>
+    <form method="post">
+        <label><input type="radio" name="delivery_type" value="pickup" id="pickup" onclick="toggleAddress()" required> Collect from Store</label><br>
+        <label><input type="radio" name="delivery_type" value="home" id="home" onclick="toggleAddress()"> Home Delivery</label><br>
+        <div id="address-field" style="display:none; margin-top:10px;">
+            <label>Delivery Address:<br>
+                <input type="text" name="delivery_address" style="width:300px;">
+            </label>
+        </div>
+        <button type="submit">Place Order</button>
+    </form>
+    <script>toggleAddress();</script>
+</body>
+</html>

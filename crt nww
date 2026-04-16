@@ -1,0 +1,52 @@
+<?php
+session_start();
+require_once 'db_connect.php';
+
+// Remove from cart
+if (isset($_GET['remove'])) {
+    $remove_id = (int)$_GET['remove'];
+    if (isset($_SESSION['cart'][$remove_id])) {
+        unset($_SESSION['cart'][$remove_id]);
+    }
+    header('Location: cart.php');
+    exit;
+}
+
+$cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+$products = [];
+$total = 0;
+
+if ($cart) {
+    $ids = implode(',', array_map('intval', array_keys($cart)));
+    $stmt = $pdo->query("SELECT product_id, name, price FROM products WHERE product_id IN ($ids)");
+    $products = $stmt->fetchAll();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+    <a href="products.php">Continue Shopping</a>
+    <?php if ($products): ?>
+        <ul>
+            <?php foreach ($products as $product): 
+                $qty = $cart[$product['product_id']];
+                $subtotal = $qty * $product['price'];
+                $total += $subtotal;
+            ?>
+                <li>
+                    <strong><?= htmlspecialchars($product['name']) ?></strong> - $<?= number_format($product['price'], 2) ?> x <?= $qty ?> = $<?= number_format($subtotal, 2) ?>
+                    <a href="cart.php?remove=<?= $product['product_id'] ?>">Remove</a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <h3>Total: $<?= number_format($total, 2) ?></h3>
+    <?php else: ?>
+        <p>Your cart is empty.</p>
+    <?php endif; ?>
+</body>
+</html>

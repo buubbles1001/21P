@@ -1,0 +1,13 @@
+INSERT INTO products (producer_id, product_name, description, price, stock_quantity)
+
+VALUES 
+
+(1, 'Organic Apples', 'Fresh organic apples from local farms', 2.50, 100),
+
+(1, 'Free Range Eggs', '12 pack of free range eggs', 3.20, 50),
+
+(2, 'Whole Milk', '1 litre whole milk', 1.40, 75),
+
+(2, 'Cheddar Cheese', 'Mature cheddar cheese 200g', 2.80, 40),
+
+(3, 'Brown Bread', 'Freshly baked brown bread loaf', 1.80, 30);

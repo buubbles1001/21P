@@ -54,5 +54,34 @@ if (isset($_POST['buy_cart'])) {
     <?php else: ?>
         <p>Your cart is empty.</p>
     <?php endif; ?>
+
+<h2>Your Orders</h2>
+<?php
+$stmt = $pdo->prepare('SELECT o.order_id, o.order_date, o.order_status, o.discount_applied, p.name, o.quantity, o.total_price FROM orders o JOIN products p ON o.product_id = p.product_id WHERE o.user_id = ? ORDER BY o.order_date DESC, o.order_id DESC');
+$stmt->execute([$user_id]);
+$orders = $stmt->fetchAll();
+if ($orders):
+    $current_order = null;
+    foreach ($orders as $order):
+        if ($current_order !== $order['order_id']):
+            if ($current_order !== null) echo '</ul>';
+            $current_order = $order['order_id'];
+            echo '<div style="margin-top:20px; padding:10px; border:1px solid #ccc; border-radius:6px; background:#f9f9f9;">';
+            echo '<strong>Order #' . $order['order_id'] . '</strong> | Date: ' . htmlspecialchars($order['order_date']) . ' | Status: ' . htmlspecialchars($order['order_status']) . '<ul>';
+        endif;
+        echo '<li>' . htmlspecialchars($order['name']) . ' - $' . number_format($order['total_price'] / $order['quantity'], 2) . ' x ' . $order['quantity'] . ' = $' . number_format($order['total_price'], 2) . '</li>';
+        // Show discount only once per order
+        if ($order['discount_applied'] && $order['discount_applied'] > 0) {
+            echo '<li><em>Loyalty Discount: -$' . number_format($order['discount_applied'], 2) . '</em></li>';
+        }
+        // End of order block
+        if (next($orders) === false || $current_order !== $orders[key($orders)]['order_id']) {
+            echo '</ul></div>';
+        }
+    endforeach;
+else:
+    echo '<p>You have no orders yet.</p>';
+endif;
+?>
 </body>
 </html>

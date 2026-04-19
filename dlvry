@@ -23,24 +23,12 @@ foreach ($products as $product) {
 if (isset($_POST['delivery_type'])) {
     $delivery_type = $_POST['delivery_type'];
     $delivery_address = $delivery_type === 'home' ? trim($_POST['delivery_address']) : null;
-    $order_status = 'Pending';
-    $order_date = date('Y-m-d H:i:s');
-
-    // Insert order(s) and delivery
-    foreach ($products as $product) {
-        $qty = $cart[$product['product_id']];
-        $total_price = $qty * $product['price'];
-        // Insert into orders
-        $stmt = $pdo->prepare("INSERT INTO orders (user_id, product_id, quantity, total_price, order_status, order_date) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$user_id, $product['product_id'], $qty, $total_price, $order_status, $order_date]);
-        $order_id = $pdo->lastInsertId();
-        // Insert into delivery
-        $stmt2 = $pdo->prepare("INSERT INTO delivery (order_id, delivery_type, delivery_address, delivery_status, tracking_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt2->execute([$order_id, $delivery_type, $delivery_address, 'Pending', null]);
-    }
-    unset($_SESSION['cart']);
-    unset($_SESSION['pending_order']);
-    header('Location: account.php?order=success');
+    // Store delivery info in session and redirect to order summary
+    $_SESSION['delivery_info'] = [
+        'delivery_type' => $delivery_type,
+        'delivery_address' => $delivery_address
+    ];
+    header('Location: order_summary.php');
     exit;
 }
 ?>
@@ -72,3 +60,4 @@ if (isset($_POST['delivery_type'])) {
     <script>toggleAddress();</script>
 </body>
 </html>
+

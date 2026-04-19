@@ -57,6 +57,7 @@ if (isset($_POST['buy_cart'])) {
 
 <h2>Your Orders</h2>
 <?php
+#Retrieves all orders for a specific user, joins product names, and lists newest orders first
 $stmt = $pdo->prepare('SELECT o.order_id, o.order_date, o.order_status, o.discount_applied, p.name, o.quantity, o.total_price FROM orders o JOIN products p ON o.product_id = p.product_id WHERE o.user_id = ? ORDER BY o.order_date DESC, o.order_id DESC');
 $stmt->execute([$user_id]);
 $orders = $stmt->fetchAll();
